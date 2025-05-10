@@ -11,13 +11,13 @@ const Login = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            setIsLoggedIn(true);
-            router.push("/");
-        }
-    }, []);
+    // useEffect(() => {
+    //     const token = localStorage.getItem("token");
+    //     if (token) {
+    //         setIsLoggedIn(true);
+    //         router.push("/");
+    //     }
+    // }, []);
 
     const handleGoogleLogin = async () => {
         try {
