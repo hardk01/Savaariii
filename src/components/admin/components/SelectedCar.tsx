@@ -41,9 +41,9 @@ const SelectedCar = () => {
     useEffect(() => {
         const fetchCities = async () => {
             try {
-                const response = await fetch("/api/cites");
-                const data = await response.json();
-                setCities(data);
+                // const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}api/cites`);
+                // const data = await response.json();
+                // setCities(data);
             } catch (error) {
             }
         };
