@@ -52,9 +52,6 @@ const PaymentDetails = () => {
     const [selectedDiscount, setSelectedDiscount] = useState(0);
     const [discountedPrice, setDiscountedPrice] = useState<number | null>(null);
     const [finalPayableAmount, setFinalPayableAmount] = useState<number | null>(null);
-
-    console.log(finalPayableAmount, "finalPayableAmount");
-
     const [discountAmount, setDiscountAmount] = useState<number | null>(null);
 
 
@@ -148,14 +145,14 @@ const PaymentDetails = () => {
                 const updatedPrice = userCarData.price - discountAmount;
 
                 setDiscountAmount(discountAmount);
-                setDiscountedPrice(updatedPrice); // Update discounted price
-                setFinalPayableAmount(updatedPrice * (selectedDiscount / 100)); // Update final payable amount
+                setDiscountedPrice(updatedPrice);
+                setFinalPayableAmount(updatedPrice * (selectedDiscount / 100));
             }
         } catch (error) {
             console.error("Error applying coupon:", error);
             if (userCarData) {
                 setDiscountAmount(0);
-                setDiscountedPrice(userCarData.price); // Reset to original price if coupon is invalid
+                setDiscountedPrice(userCarData.price);
                 setFinalPayableAmount(userCarData.price * (selectedDiscount / 100));
             }
         }
@@ -242,7 +239,7 @@ const PaymentDetails = () => {
 
             if (data.data._id) {
                 localStorage.setItem("bookingId", data.data._id);
-                console.log("Booking ID stored:", data.data._id);
+                // console.log("Booking ID stored:", data.data._id);
             } else {
                 console.error("Booking ID (_id) not found in the response.");
             }
@@ -256,20 +253,17 @@ const PaymentDetails = () => {
         const paymentMethod = selectedDiscount === 0 ? "cod" : "online";
 
         if (paymentMethod === "cod") {
-            // Ensure booking data is created and stored
             await storePaymentData("cod");
 
             const bookingId = localStorage.getItem("bookingId");
-            if (!bookingId || !finalPayableAmount) {
+            if (!bookingId) {
                 alert("Missing booking ID or payable amount. Cannot proceed.");
                 return;
             }
 
             try {
                 // Update the booking with COD payment method
-                await updateBooking(bookingId, finalPayableAmount, paymentMethod);
-
-                // Redirect to payment-details page
+                await updateBooking(bookingId, paymentMethod);
                 router.push("/payment-details");
             } catch (error) {
                 console.error("Error handling COD booking:", error);
@@ -400,10 +394,10 @@ const PaymentDetails = () => {
 
     };
 
-    const updateBooking = async (bookingId: string, totalAmount: number, paymentMethod: string) => {
+    const updateBooking = async (bookingId: string, paymentMethod: string) => {
         const token = localStorage.getItem("token");
 
-        if (!bookingId || !totalAmount || !paymentMethod) {
+        if (!bookingId || !paymentMethod) {
             alert("Missing required fields. Cannot update booking.");
             return;
         }

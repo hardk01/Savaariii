@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import CounterUp from '../elements/CounterUp'
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
 
 export interface AuthTokenPayload {
     userId: string;
@@ -48,20 +47,12 @@ const UserPaymentDetails = () => {
     const [userFormData, setUserFormData] = useState<userFormData>();
     const [carDetails, setCarDetails] = useState<paymentData>()
     const [user, setUser] = useState<user>()
-    const [cabId, setCabId] = useState<{ userId: string } | null>(null)
 
 
     useEffect(() => {
         const storedSelectedCars = localStorage.getItem("selectedCarsInfo");
         if (storedSelectedCars) {
             setCarDetails(JSON.parse(storedSelectedCars));
-        }
-    }, []);
-
-    useEffect(() => {
-        const storedSelectedCars = localStorage.getItem("cabResults");
-        if (storedSelectedCars) {
-            setCabId(JSON.parse(storedSelectedCars));
         }
     }, []);
 
@@ -87,7 +78,7 @@ const UserPaymentDetails = () => {
     }, []);
 
     const saveOrderDetails = async () => {
-        router.push("thankyou")
+        router.push("/thankyou")
     };
 
     const formatDate = (dateString: string) => {

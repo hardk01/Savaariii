@@ -224,8 +224,11 @@ const Deshboard = () => {
                                     <div className="product-cell stock"><span className="cell-label">Cancel Reason:</span>{book.cancellationReason}</div>
                                 )}
                                 <div className="product-cell stock"><span className="cell-label">directions:</span>{book.pic} To {book.drop}</div>
-                                {book.dueAmount && (
-                                    <div className="product-cell sales"><span className="cell-label">Due Amount:</span>{book.dueAmount}</div>
+                                {book.dueAmount > 0 && (
+                                    <div className="product-cell sales">
+                                        <span className="cell-label">Due Amount:</span>
+                                        {book.dueAmount}
+                                    </div>
                                 )}
                                 <div className="product-cell price"><span className="cell-label">Price:</span>${book.totalAmount}</div>
                             </div>

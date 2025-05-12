@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithPopup } from "firebase/auth";
+import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 
 const Login = () => {
@@ -11,13 +11,24 @@ const Login = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
 
-    // useEffect(() => {
-    //     const token = localStorage.getItem("token");
-    //     if (token) {
-    //         setIsLoggedIn(true);
-    //         router.push("/");
-    //     }
-    // }, []);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            setIsLoggedIn(true);
+            router.push("/");
+        }
+    }, []);
+
+     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsLoggedIn(true);
+                router.push("/");
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const handleGoogleLogin = async () => {
         try {
@@ -44,8 +55,8 @@ const Login = () => {
             if (!response.ok) {
                 throw new Error("Failed to register user with Google");
             }
-            const token = await user.getIdToken();
-            localStorage.setItem("token", token);
+            const data = await response.json();
+            localStorage.setItem("token", data.data.token);
             setIsLoggedIn(true);
             router.push("/");
         } catch (error: any) {
@@ -60,30 +71,30 @@ const Login = () => {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-    
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}v1/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(credentials), 
+                body: JSON.stringify(credentials),
             });
-    
+
             if (!response.ok) {
                 throw new Error("Login failed");
             }
-            
+
             const data = await response.json();
             // Save token to localStorage
             localStorage.setItem("token", data.data.token);
             // Assume API returns a token
             setIsLoggedIn(true);
             router.push("/");
-    
+
         } catch (error) {
             console.error("Login error:", error);
-            alert("Invalid email or password.");
+            // alert("Invalid email or password.");
         }
     };
 
@@ -92,6 +103,10 @@ const Login = () => {
         setIsLoggedIn(false);
         alert("Logged out!");
     };
+
+    if (isLoggedIn) {
+        return null;
+    }
 
     return (
         <div className="container pt-140 pb-170">
@@ -104,17 +119,17 @@ const Login = () => {
                                 <h4 className="neutral-1000">Welcome back</h4>
                             </div>
                             <div className="form-login mt-30">
-            <form onSubmit={handleLogin}>
+                                <form onSubmit={handleLogin}>
                                     <div className="form-group">
-                    <input
-                        name="email"
-                        value={credentials.email}
+                                        <input
+                                            name="email"
+                                            value={credentials.email}
                                             onChange={handleChange} className="form-control username" type="text" required placeholder="Email / Username" />
-                </div>
+                                    </div>
                                     <div className="form-group">
                                         <input type="password"
-                        name="password"
-                        value={credentials.password}
+                                            name="password"
+                                            value={credentials.password}
                                             onChange={handleChange} className="form-control password" required placeholder="****************" />
                                     </div>
                                     <div className="form-group">

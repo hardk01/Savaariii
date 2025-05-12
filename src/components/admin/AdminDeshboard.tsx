@@ -32,7 +32,7 @@ const AdminDashboard = () => {
         }
 
         const data = await res.json();
-        console.log(data);
+        // console.log(data);
         
         setAnalyticsData(data);
       } catch (err: any) {

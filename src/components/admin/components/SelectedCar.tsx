@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { Dropdown } from "react-bootstrap";
 import Table from "./elements/Table";
+import data from "../../../utility/in.json";
 
 type City = {
     city: string;
@@ -36,19 +37,6 @@ const SelectedCar = () => {
     const [carList, setCarList] = useState("");
     const [CarImage, setCarImage] = useState<string | null>(null);
 
-    // console.log(CarImage, "carImage");
-
-    useEffect(() => {
-        const fetchCities = async () => {
-            try {
-                const response = await fetch(`api/cites`);
-                const data = await response.json();
-                setCities(data);
-            } catch (error) {
-            }
-        };
-        fetchCities();
-    }, []);
 
     const fetchCarList = async () => {
         try {
@@ -272,8 +260,8 @@ const SelectedCar = () => {
                                     {from || "Pick Up"}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu style={{ maxHeight: "200px", overflowY: "auto" }} as="ul" className="dropdown-menu">
-                                    {cities.length > 0 ? (
-                                        cities.map((city, index) => (
+                                    {data.length > 0 ? (
+                                        data.map((city, index) => (
                                             <Dropdown.Item
                                                 as="li"
                                                 key={index}
@@ -298,8 +286,8 @@ const SelectedCar = () => {
                                     {to || "Drop"}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu style={{ maxHeight: "200px", overflowY: "auto" }} as="ul" className="dropdown-menu">
-                                    {cities.length > 0 ? (
-                                        cities.map((city, index) => (
+                                    {data.length > 0 ? (
+                                        data.map((city, index) => (
                                             <Dropdown.Item
                                                 as="li"
                                                 key={index}

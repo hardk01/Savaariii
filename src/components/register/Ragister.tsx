@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 
@@ -16,13 +16,6 @@ const Register = () => {
         phone: "",
         postcode: "",
     });
-
-    // useEffect(() => {
-    //     const token = localStorage.getItem("token");
-    //     if (token) {
-    //         setIsLoggedIn(true);
-    //     }
-    // }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -94,8 +87,9 @@ const Register = () => {
             if (!response.ok) {
                 throw new Error("Failed to register user with Google");
             }
-            const token = await user.getIdToken();
-            localStorage.setItem("token", token);
+
+            const data = await response.json();
+            localStorage.setItem("token", data.data.token);
             setIsLoggedIn(true);
             router.push("/");
         } catch (error: any) {

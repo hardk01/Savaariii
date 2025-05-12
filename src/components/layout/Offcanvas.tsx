@@ -7,25 +7,22 @@ import { useEffect, useState } from 'react';
 export default function Offcanvas({ isOffcanvas, handleOffcanvas }: any) {
 
 	const [user, setUser] = useState<User | null>(null);
-	
-	useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token && !user) {
-            onAuthStateChanged(auth, (firebaseUser) => {
-                if (firebaseUser) setUser(firebaseUser);
-            });
-        }
 
-		const storedUserData = localStorage.getItem("userDataObj");
-        if (storedUserData) {
-        }
-    }, []);
+	useEffect(() => {
+		// Check if the user is authenticated
+		const token = localStorage.getItem("token");
+		if (token && !user) {
+			onAuthStateChanged(auth, (firebaseUser) => {
+				if (firebaseUser) setUser(firebaseUser);
+			});
+		}
+	}, [user]);
 
 	const handleLogout = async () => {
-        await signOut(auth);
-        localStorage.removeItem("token");
-        setUser(null);
-    };
+		await signOut(auth);
+		localStorage.removeItem("token");
+		setUser(null);
+	};
 
 	return (
 		<>
@@ -71,7 +68,19 @@ export default function Offcanvas({ isOffcanvas, handleOffcanvas }: any) {
 									<p className="text-xs neutral-1000">25 September 2024</p>
 								</div>
 							</div>
-							<Link onClick={handleLogout} className="btn btn-black" href="#">Logout</Link>
+							{user ? (
+								<Link
+									onClick={handleLogout}
+									className="btn btn-black"
+									href="#"
+								>
+									Logout
+								</Link>
+							) : (
+								<Link className="btn btn-black" href="/login">
+									Login
+								</Link>
+							)}
 						</div>
 						<div className="sidebar-banner">
 							<div className="position-relative">

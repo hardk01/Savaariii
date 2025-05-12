@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Layout from "../layout/Layout";
 
@@ -9,12 +9,12 @@ const AdminLogin: React.FC = () => {
   const [email, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  useEffect(() => {
-    const isAdminLoggedIn = localStorage.getItem("isAdminLoggedIn");
-    if (isAdminLoggedIn === "true") {
-      router.push("/admin"); 
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const isAdminLoggedIn = localStorage.getItem("isAdminLoggedIn");
+  //   if (isAdminLoggedIn === "true") {
+  //     router.push("/admin"); 
+  //   }
+  // }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,24 +30,24 @@ const AdminLogin: React.FC = () => {
         },
         body: JSON.stringify(adminCredentials),
       });
-  
+
       if (!response.ok) {
         throw new Error("Login failed");
       }
-  
+
       const result = await response.json();
       console.log("Login successful:", result);
-  
+
       localStorage.setItem("token", result.data.token);
-  
+
       localStorage.setItem("isAdminLoggedIn", "true");
       router.push("/admin");
-  
+
     } catch (error) {
       console.error("Login error:", error);
     }
   };
-  
+
 
   return (
     <Layout footerStyle={1}>
@@ -63,17 +63,17 @@ const AdminLogin: React.FC = () => {
                 <div className="form-login mt-30">
                   <form onSubmit={handleLogin}>
                     <div className="form-group">
-          <input
-            value={email}
-            onChange={(e) => setUsername(e.target.value)}
-            required
+                      <input
+                        value={email}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
                         className="form-control username" type="text" placeholder="Email / Username" />
                     </div>
                     <div className="form-group">
-          <input
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
+                      <input
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
                         className="form-control password" type="password" placeholder="****************" />
                     </div>
                     <div className="form-group mb-30">
@@ -81,11 +81,11 @@ const AdminLogin: React.FC = () => {
                         <svg width={16} height={16} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M8 15L15 8L8 1M15 8L1 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
-          </button>
+                      </button>
                     </div>
-        </form>
-      </div>
-    </div>
+                  </form>
+                </div>
+              </div>
             </div>
           </div>
         </div>
