@@ -3,25 +3,56 @@ import Link from 'next/link'
 import { signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+
+export interface AuthTokenPayload {
+	userId: string;
+	fullName?: string;
+	name?: string;
+	email: string;
+	phone: string;
+	iat?: number;
+	exp?: number;
+}
 
 export default function Offcanvas({ isOffcanvas, handleOffcanvas }: any) {
-
 	const [user, setUser] = useState<User | null>(null);
+	const [fullName, setFullName] = useState<string | null>(null);
+    const [email, setEmail] = useState<string | null>(null);
 
 	useEffect(() => {
-		// Check if the user is authenticated
-		const token = localStorage.getItem("token");
-		if (token && !user) {
-			onAuthStateChanged(auth, (firebaseUser) => {
-				if (firebaseUser) setUser(firebaseUser);
-			});
-		}
-	}, [user]);
+        if (typeof window !== "undefined") {
+            const token = localStorage.getItem("token");
+            if (token) {
+                try {
+                    const decoded: AuthTokenPayload = jwtDecode(token);
+                    setFullName(decoded.fullName || decoded.name || "Guest");
+                    setEmail(decoded.email || null);
+                } catch (error) {
+                    console.error("Error decoding token:", error);
+                }
+            }
 
-	const handleLogout = async () => {
-		await signOut(auth);
-		localStorage.removeItem("token");
-		setUser(null);
+            onAuthStateChanged(auth, (firebaseUser) => {
+                if (firebaseUser) setUser(firebaseUser);
+            });
+        }
+    }, []);
+
+    const handleLogout = async () => {
+        await signOut(auth);
+        if (typeof window !== "undefined") {
+            localStorage.removeItem("token");
+        }
+        setUser(null);
+        setFullName(null);
+        setEmail(null);
+    };
+
+
+	const truncateText = (text: string | null | undefined, maxLength: number): string => {
+		if (!text) return "";
+		return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
 	};
 
 	return (
@@ -64,16 +95,15 @@ export default function Offcanvas({ isOffcanvas, handleOffcanvas }: any) {
 							<div className="card-author">
 								<div className="card-image"><img src="/assets/imgs/page/homepage1/author2.png" alt="Carento" /></div>
 								<div className="card-info">
-									<p className="text-md-bold neutral-1000">{user?.displayName || "Guest"}</p>
-									<p className="text-xs neutral-1000">25 September 2024</p>
+									<p className="text-md-bold neutral-1000">{user?.displayName || fullName || "Guest"}</p>
+									<p className="text-xs neutral-1000"> {truncateText(user?.email || email, 22)} </p>
 								</div>
 							</div>
-							{user ? (
+							{user || fullName ? (
 								<Link
 									onClick={handleLogout}
 									className="btn btn-black"
-									href="#"
-								>
+									href="#">
 									Logout
 								</Link>
 							) : (

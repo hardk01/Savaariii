@@ -19,7 +19,7 @@ const Login = () => {
         }
     }, []);
 
-     useEffect(() => {
+    useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setIsLoggedIn(true);
@@ -86,9 +86,7 @@ const Login = () => {
             }
 
             const data = await response.json();
-            // Save token to localStorage
             localStorage.setItem("token", data.data.token);
-            // Assume API returns a token
             setIsLoggedIn(true);
             router.push("/");
 
@@ -96,12 +94,6 @@ const Login = () => {
             console.error("Login error:", error);
             // alert("Invalid email or password.");
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        setIsLoggedIn(false);
-        alert("Logged out!");
     };
 
     if (isLoggedIn) {

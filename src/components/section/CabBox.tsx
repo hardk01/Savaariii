@@ -1,6 +1,7 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import { useSearchParams } from "next/navigation";
 
 type UserFormData = {
     to: any;
@@ -12,6 +13,15 @@ type UserFormData = {
     returnDate?: string;
     pickupAddress?: string;
     city?: string;
+};
+
+type RouteFare = {
+    _id: string;
+    car: string;
+    price: number;
+    distance: number;
+    from: string;
+    to: string;
 };
 
 type Booking = {
@@ -29,33 +39,63 @@ type Booking = {
 const CabBox = () => {
     const router = useRouter()
     const [userFormData, setUserFormData] = useState<UserFormData | null>(null);
-    const [filteredData, setFilteredData] = useState<{ _id: string; car: string; price: number; distance: number }[]>([]);
+    const [filteredData, setFilteredData] = useState<RouteFare[]>([]);
+    const searchParams = useSearchParams();
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
 
-useEffect(() => {
-    const storedData = localStorage.getItem("cabResults");
-    const storedFormData = localStorage.getItem("formDataObj");
+    useEffect(() => {
+        const fetchBookings = async () => {
+            if (!from || !to) {
+                console.error("Missing `from` or `to` parameters.");
+                return;
+            }
 
-    if (storedData && storedFormData) {
-        try {
-            const parsedData = JSON.parse(storedData);
-            const formData = JSON.parse(storedFormData);
+            try {
+                const token = localStorage.getItem("token");
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}v1/cityroutefares?from=${from}&to=${to}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
-            // Filter cabs based on the selected route (from and to)
-            const filteredCabs = parsedData.filter(
-                (cab: any) => cab.from === formData.from && cab.to === formData.to
-            );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch booking data.");
+                }
 
-            setFilteredData(filteredCabs);
-            setUserFormData(formData);
-        } catch (error) {
-            console.error("Error parsing data from localStorage:", error);
-            setFilteredData([]);
-        }
-    } else {
-        setFilteredData([]);
-    }
-}, []);
+                const result = await response.json();
+                const allData: RouteFare[] = result.data;
+                // Filter data where `from` and `to` match exactly
+                const filtered = allData.filter(
+                    (item) => item.from === from && item.to === to
+                );
 
+                setFilteredData(filtered);
+            } catch (error) {
+                console.error("Error fetching booking data:", error);
+            }
+        };
+
+        fetchBookings();
+    }, [from, to]);
+
+    // useEffect(() => {
+    //     const storedSelectedCars = localStorage.getItem("formDataObj");
+    //     if (storedSelectedCars) {
+    //         const parsedData = JSON.parse(storedSelectedCars);
+    //         setUserFormData(parsedData);
+
+    //         if (carData && Array.isArray(carData)) {
+    //             const filteredCabs = carData.filter(
+    //                 (cab: any) => cab.from === parsedData.from && cab.to === parsedData.to
+    //             );
+    //             setFilteredData(filteredCabs);
+    //         }
+    //     }
+    // }, [carData]);
 
     useEffect(() => {
         const storedSelectedCars = localStorage.getItem("formDataObj");
@@ -65,18 +105,10 @@ useEffect(() => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     if (filteredData && Array.isArray(filteredData) && filteredData.length > 0) {
-    //         const id = filteredData[0]._id;
-    //         if (id) {
-    //             localStorage.setItem("selectedCarId", id);
-    //         }
-    //     }
-    // }, [filteredData]);
-
     const handleSelect = (booking: Booking) => {
 
         const carWithDetails: any = {
+            _id: booking._id,
             from: booking.from,
             to: booking.to,
             selectedCar: booking.car,
@@ -84,18 +116,14 @@ useEffect(() => {
             distance: booking.distance,
         };
 
-        const existingCars = JSON.parse(localStorage.getItem('selectedCars') || '[]');
-        const updatedSelectedCars = [...existingCars, carWithDetails];
-        localStorage.setItem('selectedCars', JSON.stringify(updatedSelectedCars));
         localStorage.setItem("selectedCarsInfo", JSON.stringify(carWithDetails))
         router.push("/user-contact");
-
     };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+        const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         return `${day}-${month}-${year}`;
     };

@@ -27,12 +27,6 @@ const UserContact = () => {
             ...userInfo,
         };
 
-        const updatedUserInfoArray = [...(JSON.parse(localStorage.getItem('userInfoArray') || '[]')), combinedData];
-
-        console.log("updatedUserInfoArray", updatedUserInfoArray);
-
-
-        localStorage.setItem('userInfoArray', JSON.stringify(updatedUserInfoArray));
         localStorage.setItem('userInfoObj', JSON.stringify(combinedData));
 
         setUserInfo({
@@ -45,7 +39,6 @@ const UserContact = () => {
         router.push("/payment");
 
     };
-
 
     return (
         <>

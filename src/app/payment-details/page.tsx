@@ -1,6 +1,7 @@
 import Layout from '@/components/layout/Layout';
 import UserPaymentDetails from '@/components/section/UserPaymentDetails';
 import React from 'react'
+import { Suspense } from 'react';
 
 const page = () => {
   return (
@@ -8,7 +9,9 @@ const page = () => {
 
       {/* <Payment /> */}
       <Layout>
-        <UserPaymentDetails />
+        <Suspense fallback={<div>Loading...</div>}>
+          <UserPaymentDetails />
+        </Suspense>
       </Layout>
 
     </>

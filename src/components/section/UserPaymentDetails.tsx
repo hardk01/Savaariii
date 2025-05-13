@@ -1,81 +1,57 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import CounterUp from '../elements/CounterUp'
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export interface AuthTokenPayload {
-    userId: string;
-    iat?: number;
-    exp?: number;
-}
-
-interface user {
-    name: string;
-    email: string;
-    phoneNumber: string;
-    pickUp: string;
-    drop: string
-}
-
-interface paymentData {
-    amount: any;
-    discountedPrice: string;
-    finalPayableAmount: string;
-}
-
-interface userFormData {
-    pickUpDate: string;
-    pickUpTime: string;
-
-    city: string;
-    returnDate: string;
-    price: string;
-}
-
-interface paymentData {
+interface BookingDetails {
     selectedCar: string;
     from: string;
     to: string;
     distance: string;
     price: string;
     paymentMethod?: string;
+    [key: string]: any;
 }
 
 const UserPaymentDetails = () => {
     const router = useRouter()
-    const [paymentData, setPaymentData] = useState<paymentData>();
-    const [userFormData, setUserFormData] = useState<userFormData>();
-    const [carDetails, setCarDetails] = useState<paymentData>()
-    const [user, setUser] = useState<user>()
+    const searchParams = useSearchParams();
+    const [bookingDetails, setBookingDetails] = useState<BookingDetails | null>(null);
+    const bookingId = searchParams.get("bookingId");
+    // console.log("Booking ID from URL:", bookingId);
+    // console.log(bookingDetails, "bookingDetails");
 
-
-    useEffect(() => {
-        const storedSelectedCars = localStorage.getItem("selectedCarsInfo");
-        if (storedSelectedCars) {
-            setCarDetails(JSON.parse(storedSelectedCars));
-        }
-    }, []);
+    const token = localStorage.getItem("token");
 
     useEffect(() => {
-        const storedSelectedCars = localStorage.getItem("payment");
-        if (storedSelectedCars) {
-            setPaymentData(JSON.parse(storedSelectedCars));
-        }
-    }, []);
+        const fetchBookingDetails = async () => {
+            if (!bookingId) {
+                console.error("Booking ID is missing.");
+                return;
+            }
 
-    useEffect(() => {
-        const storedSelectedCars = localStorage.getItem("formDataObj");
-        if (storedSelectedCars) {
-            setUserFormData(JSON.parse(storedSelectedCars));
-        }
-    }, []);
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}v1/cab-bookings/${bookingId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-    useEffect(() => {
-        const storedSelectedCars = localStorage.getItem("userInfoObj");
-        if (storedSelectedCars) {
-            setUser(JSON.parse(storedSelectedCars));
-        }
-    }, []);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch booking details.");
+                }
+
+                const data = await response.json();
+                setBookingDetails(data.data);
+            } catch (error) {
+                console.error("Error fetching booking details:", error);
+            }
+        };
+
+        fetchBookingDetails();
+    }, [bookingId]);
 
     const saveOrderDetails = async () => {
         router.push("/thankyou")
@@ -116,38 +92,40 @@ const UserPaymentDetails = () => {
                                                 <p className="text-sm-bold neutral-1000">Distance :</p>
                                                 <p className="text-sm-bold neutral-1000">PICK UP Date :</p>
                                                 <p className="text-sm-bold neutral-1000">PICK UP Time :</p>
-                                                {userFormData?.city && (
+                                                {bookingDetails?.city && (
                                                     <p className="text-sm-bold neutral-1000">City :</p>
                                                 )}
-                                                {userFormData?.returnDate && (
+                                                {bookingDetails?.returnDate && (
                                                     <p className="text-sm-bold neutral-1000">Return Date :</p>
                                                 )}
                                                 <p className="text-sm-bold neutral-1000">Rate :</p>
                                                 <p className="text-sm-bold neutral-1000">Payment Amount :</p>
                                             </div>
+
                                             <div className="col-md-7 col-4 d-flex flex-column gap-1 align-items-end align-items-md-start">
-                                                <p className="text-sm-bold neutral-1000">{user?.name}</p>
-                                                <p className="text-sm-bold neutral-1000">{user?.email}</p>
-                                                <p className="text-sm-bold neutral-1000">{user?.phoneNumber}</p>
-                                                <p className="text-sm-bold neutral-1000">{carDetails?.selectedCar}</p>
-                                                <p className="text-sm-bold neutral-1000">{carDetails?.from} {">"} {carDetails?.to}</p>
-                                                <p className="text-sm-bold neutral-1000">{carDetails?.distance}</p>
-                                                <p className="text-sm-bold neutral-1000">{userFormData?.pickUpDate ? formatDate(userFormData.pickUpDate) : ""}</p>
-                                                <p className="text-sm-bold neutral-1000">{userFormData?.pickUpTime}</p>
-                                                {userFormData?.city && (
-                                                    <p className="text-sm-bold neutral-1000">{userFormData?.city}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.fullname}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.email}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.phoneno}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.CityRouteFareid.car}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.from} {">"} {bookingDetails?.to}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.CityRouteFareid.distance}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.pickupdate ? formatDate(bookingDetails.pickupdate) : ""}</p>
+                                                <p className="text-sm-bold neutral-1000">{bookingDetails?.pickuptime}</p>
+                                                {bookingDetails?.city && (
+                                                    <p className="text-sm-bold neutral-1000">{bookingDetails?.city}</p>
                                                 )}
-                                                {userFormData?.returnDate && (
-                                                    <p className="text-sm-bold neutral-1000">{userFormData?.returnDate ? formatDate(userFormData.returnDate) : ""}</p>
+                                                {bookingDetails?.returnDate && (
+                                                    <p className="text-sm-bold neutral-1000">{bookingDetails?.returnDate ? formatDate(bookingDetails.returnDate) : ""}</p>
                                                 )}
-                                                <p className="text-sm-bold text-primary-dark">{carDetails?.price}₹</p>
+                                                <p className="text-sm-bold text-primary-dark">{bookingDetails?.totalAmount}₹</p>
                                                 {/* Conditionally render payment amount */}
-                                                {paymentData?.paymentMethod === "online" ? (
-                                                    <p className="text-sm-bold text-primary-dark">{paymentData?.finalPayableAmount}₹ (Online Payment)</p>
+                                                {bookingDetails?.paymentMethod === "online" ? (
+                                                    <p className="text-sm-bold text-primary-dark">{bookingDetails?.amount}₹ (Online Payment)</p>
                                                 ) : (
-                                                    <p className="text-sm-bold text-primary-dark">{carDetails?.price}₹ (COD)</p>
+                                                    <p className="text-sm-bold text-primary-dark">{bookingDetails?.totalAmount}₹ (COD)</p>
                                                 )}
                                             </div>
+
                                         </div>
                                         <div className="col-lg-12">
                                             <button onClick={saveOrderDetails} className="btn btn-book">

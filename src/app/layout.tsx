@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Urbanist } from "next/font/google"
 import "/public/assets/css/main.css"
+import { StoreProvider } from "@/store/StoreProvider";
 
 const urbanist = Urbanist({
   weight: ['300', '400', '500', '600', '700', '800', '900'],
@@ -21,11 +22,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <StoreProvider>
       <html lang="en">
         <body className={`${urbanist.variable}`}>
           
           {children}
         </body>
       </html>
+      </StoreProvider>
   );
 }

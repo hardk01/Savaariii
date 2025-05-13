@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react'
 import { jwtDecode } from 'jwt-decode';
+import Pagination from '../elements/Pagination';
 
 export interface AuthTokenPayload {
     userId: string;
@@ -10,8 +11,8 @@ export interface AuthTokenPayload {
 
 const Deshboard = () => {
     const [bookings, setBookings] = useState<any[]>([]);
-
-    console.log(bookings, "bookings");
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -29,7 +30,7 @@ const Deshboard = () => {
                     return;
                 }
                 const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}v1/cab-bookings/user/${userId}`,
+                    `${process.env.NEXT_PUBLIC_API_URL}v1/cab-bookings/user/${userId}?page=${currentPage}&limit=10`,
                     {
                         method: "GET",
                         headers: {
@@ -44,6 +45,7 @@ const Deshboard = () => {
 
                 const data = await response.json();
                 setBookings(data.data);
+                setTotalPages(data.totalPages || 1);
             } catch (err: any) {
                 console.error("Failed to fetch bookings:", err);
             }
@@ -117,6 +119,18 @@ const Deshboard = () => {
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
         return `${day}-${month}-${year}`;
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage((prevPage) => prevPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage((prevPage) => prevPage - 1);
+        }
     };
 
     return (
@@ -233,6 +247,15 @@ const Deshboard = () => {
                                 <div className="product-cell price"><span className="cell-label">Price:</span>${book.totalAmount}</div>
                             </div>
                         ))}
+                    </div>
+                    <div className="d-flex justify-content-center">
+                        <Pagination
+                            handleNextPage={handleNextPage}
+                            handlePreviousPage={handlePreviousPage}
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            setCurrentPage={setCurrentPage}
+                        />
                     </div>
                 </div>
             </div>

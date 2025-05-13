@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import Dropdown from 'react-bootstrap/Dropdown'
 import MyDatePicker from './MyDatePicker'
 import { useRouter } from 'next/navigation'
-import PhoneVerificationModal from './PhoneVerificationModal'
+import { useDispatch } from 'react-redux'
+import { setCabResults } from '@/store/slice/carSlice'
 
 type Booking = {
 	to: any;
@@ -17,6 +18,7 @@ type Booking = {
 
 export default function HeroSearch({ selectedOption }: { selectedOption: string }) {
 	const router = useRouter();
+	const dispatch = useDispatch();
 	const [from, setCityFrom] = useState<string>("");
 	const [to, setCityTo] = useState<string>("");
 	const [bookings, setBookings] = useState<Booking[]>([]);
@@ -184,9 +186,9 @@ export default function HeroSearch({ selectedOption }: { selectedOption: string 
 			}
 			const data = await response.json();
 
-			localStorage.setItem("cabResults", JSON.stringify(data.data));
+			dispatch(setCabResults(data.data));
 
-			router.push("/booking-info");
+			router.push(`/booking-info?from=${formData.from}&to=${formData.to}`);
 		} catch (err) {
 			console.error(err);
 			alert("An error occurred while fetching data.");
@@ -205,12 +207,8 @@ export default function HeroSearch({ selectedOption }: { selectedOption: string 
 		return isNaN(date.getTime()) ? null : date;
 	}
 
-
 	const pickupOptions = [...new Set(bookings.map((item) => item.from))];
 	const dropoffOptions = [...new Set(bookings.filter((item) => item.from === formData.from).map((item) => item.to))];
-
-
-
 
 	return (
 		<>
@@ -568,7 +566,7 @@ export default function HeroSearch({ selectedOption }: { selectedOption: string 
 					</div>
 				)}
 			</form>
-				
+
 		</>
 	)
 }
