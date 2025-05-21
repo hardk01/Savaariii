@@ -39,12 +39,6 @@ const Register = () => {
             if (!response.ok) {
                 throw new Error("Failed to register user");
             }
-
-            // const result = await response.json();
-
-            // localStorage.setItem("token", result.data.token);
-            // console.log("Registration Success:", result);
-            // localStorage.setItem("userDataObj", JSON.stringify(result));
             router.push("/");
 
             // Reset form

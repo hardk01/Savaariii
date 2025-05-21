@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
+import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "@/lib/firebase";
 
 const Login = () => {
@@ -19,16 +19,16 @@ const Login = () => {
         }
     }, []);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setIsLoggedIn(true);
-                router.push("/");
-            }
-        });
+    // useEffect(() => {
+    //     const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //         if (user) {
+    //             setIsLoggedIn(true);
+    //             router.push("/");
+    //         }
+    //     });
 
-        return () => unsubscribe();
-    }, []);
+    //     return () => unsubscribe();
+    // }, []);
 
     const handleGoogleLogin = async () => {
         try {

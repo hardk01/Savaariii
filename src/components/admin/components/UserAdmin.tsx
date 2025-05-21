@@ -32,8 +32,6 @@ const UserAdmin = () => {
                 }
 
                 const data = await res.json();
-                // console.log('Cab bookings:', data);
-
                 setCabBookings(data.data);
                 setTotalPages(data.totalPages || 1);
             } catch (err) {

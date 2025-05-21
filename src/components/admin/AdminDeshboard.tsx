@@ -8,12 +8,21 @@ import UserAdmin from './components/UserAdmin';
 import BookingAdminInfo from './components/BookingAdminInfo';
 import CouponAdd from './components/CouponAdd';
 import AddCar from './components/AddCar';
+import Contect from './components/Contect';
+import { useRouter } from 'next/navigation';
 
 
 const AdminDashboard = () => {
+  const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedOption, setSelectedOption] = useState("User");
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+
+  useEffect(() => {
+      const isAdminLoggedIn = localStorage.getItem("isAdminLoggedIn");
+      if (isAdminLoggedIn !== "true") {
+        router.push("/loginadmin"); 
+      }
+    }, [router]);
 
   useEffect(() => {
     const fetchAnalyticsData = async () => {
@@ -33,8 +42,7 @@ const AdminDashboard = () => {
 
         const data = await res.json();
         // console.log(data);
-        
-        setAnalyticsData(data);
+
       } catch (err: any) {
         console.error('Error fetching analytics data:', err);
       }
@@ -61,6 +69,7 @@ const AdminDashboard = () => {
             <li><button onClick={() => setSelectedOption("Cars")} className="nav-link text-white">Cars</button></li>
             <li><button onClick={() => setSelectedOption("Blog")} className="nav-link text-white">Blog</button></li>
             <li><button onClick={() => setSelectedOption("Coupon")} className="nav-link text-white">Coupon Code</button></li>
+            <li><button onClick={() => setSelectedOption("Contect")} className="nav-link text-white">Contect Details</button></li>
           </ul>
           <hr />
           <div className="dropdown">
@@ -79,11 +88,7 @@ const AdminDashboard = () => {
           <h1 className="h4">Projects</h1>
           <button className="btn btn-primary">Create New Project</button>
         </div>
-        {/* {selectedOption === "Dashboard" && (
-          <>
-            <Deshboard />
-          </>
-        )} */}
+
         {selectedOption === "User" && (
           <>
             <UserAdmin />
@@ -117,6 +122,11 @@ const AdminDashboard = () => {
         {selectedOption === "Coupon" && (
           <>
             <CouponAdd />
+          </>
+        )}
+        {selectedOption === "Contect" && (
+          <>
+            <Contect />
           </>
         )}
       </div>
